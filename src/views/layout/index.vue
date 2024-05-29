@@ -14,6 +14,20 @@
                     <el-breadcrumb-item v-if="!item.meta.onlySubmenu" to="#">{{ item.meta.title }}</el-breadcrumb-item>
                 </template>
             </el-breadcrumb>
+            <div class="avatar">
+                <span style="margin-right: 5px;">{{userInfo.username}}</span>
+                <el-dropdown>
+                    <span class="el-dropdown-link">
+                        <el-avatar :src="defAvatar"> </el-avatar>
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item>个人中心</el-dropdown-item>
+                            <el-dropdown-item>退出</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+            </div>
         </el-header>
         <el-divider style="margin: 0px;"/>
         <el-main class="content">
@@ -31,8 +45,10 @@ import { reactive, ref, onBeforeMount } from 'vue'
 // import { get_captcha, login } from '@/api/login'
 // import { SetToken } from '@/stores/token'
 
+import defAvatar from '@/assets/images/default-avatar.gif';
 import { useRouter, useRoute } from "vue-router";
 import LayoutMenu from "./menu.vue" 
+import { GetUserInfo } from '@/stores/user-info';
  
 const route = useRoute();
 const router = useRouter();
@@ -42,6 +58,10 @@ defineOptions({
 })
 
 const isCollapse = ref(false)
+const userInfo = ref({
+    username: "",
+    menu: []
+})
 
 function collapse(){
     isCollapse.value = !isCollapse.value
@@ -54,7 +74,8 @@ function collapse(){
 // }
 
 onBeforeMount(() => {
- 
+     //获取用户信息
+     userInfo.value = GetUserInfo();
 })
 
 </script>
@@ -74,6 +95,14 @@ onBeforeMount(() => {
         margin-left: 40px;
         position: fixed;
     }
-
+    .avatar {
+        display: flex;
+        align-items: center;
+        /* margin-right: 20px; */
+    }
+    .el-dropdown-link {
+        cursor: pointer;
+        color: var(--el-color-primary);
+    }
 
 </style>

@@ -35,7 +35,7 @@ async function setDynamicRoutes(dynamicRoutes:any[], menuList:any[]){
 }
 
 //获取动态路由
-async function getDynamicRoutes(){
+export async function getDynamicRoutes(){
   //动态路由表
   var dynamicRoutes: RouteRecordRaw[] = []
 
@@ -78,7 +78,6 @@ const staticRoutes = [
     name: 'login',
     meta: {
       title: "登录",
-      isHidden: false
     },
     component: () => import('@/views/login/login-page.vue'),
     children: []
@@ -154,7 +153,6 @@ dr.forEach(route => {
 
 //路由守卫
 router.beforeEach(async (to, from, next) => {
-
   // console.log(to, from);
   if (to.path === '/login') {
     next();

@@ -36,7 +36,7 @@
             style="width: 128px; cursor: pointer"
             :src="loginForm.captcha"
             @click="get_auth_code"
-            alt="1111"
+            alt="验证码错误，请点击刷新"
           />
         </el-container>
       </el-form-item>
@@ -55,7 +55,8 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { get_captcha, login } from '@/api/login'
 import { SetToken } from '@/stores/token'
 
-import { useRouter, useRoute } from "vue-router";
+import { useRouter, useRoute, type RouteRecordRaw } from "vue-router";
+import { getDynamicRoutes } from '@/router';
  
 const route = useRoute();
 const router = useRouter();
@@ -100,10 +101,20 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         code: loginForm.code,
         id: loginForm.id
       })
-        .then((res) => {
+        .then(async (res) => {
           console.log(res)
-          router.replace('/home')
+
           SetToken(res.token)
+
+          //获取动态路由
+          var dr: RouteRecordRaw[] = await getDynamicRoutes()
+          //添加动态路由
+          dr.forEach(route => {
+            //必须要在路由跳转前(路由守卫前)加载路由组件
+            router.addRoute(route);
+          });
+
+          router.replace('/home')
         })
         .catch((err) => {
           console.log(err)
