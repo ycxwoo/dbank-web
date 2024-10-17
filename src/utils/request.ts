@@ -7,15 +7,8 @@ import router from '@/router'
 declare module 'axios' {
   interface AxiosResponse<T = any> {
     // 这里追加你的参数
-    img: ''
-    id: ''
-    token: ''
-    username: ''
-    name: ''
-    avatar: ''
-    introduction: ''
-    menu: string[]
-    roles: any[]
+    code: 200
+    msg: ''
   }
   export function create(config?: AxiosRequestConfig): AxiosInstance
 }
@@ -78,7 +71,7 @@ service.interceptors.response.use(
       }
       return Promise.reject(new Error(res.msg || 'Error'))
     } else {
-      return res.data
+      return res
     }
   },
   (error) => {

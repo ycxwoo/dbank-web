@@ -1,32 +1,32 @@
 <template>
     <div class="menu-container">
 
-        <el-dialog title="添加主菜单" v-model="addDialog.visible" :close-on-click-modal="false" width="35%" draggable >
-            <el-form ref="addMenuFormRef" :model="addDialog.formData" :rules="addDialog.rules" label-width="auto" label-position="right" style="max-width: 400px" class="centered-form">
-                <el-form-item label="路径" prop="path">
-                    <el-input v-model="addDialog.formData.path" />
+        <el-dialog title="添加主菜单" v-model="addDialogFormDataVisible" :close-on-click-modal="false" width="35%" draggable >
+            <el-form ref="addMenuFormRef" :model="addDialogFormData" :rules="addDialogFormDataRules" label-width="auto" autocomplete="on" label-position="right" style="max-width: 400px" class="centered-form">
+                <el-form-item label="路径"  prop="path">
+                    <el-input v-model="addDialogFormData.path" />
                 </el-form-item>
-                <el-form-item label="名称" prop="name">
-                    <el-input v-model="addDialog.formData.name" />
+                <el-form-item label="名称"  prop="name">
+                    <el-input v-model="addDialogFormData.name" />
                 </el-form-item>
-                <el-form-item label="重定向" prop="redirect">
-                    <el-input v-model="addDialog.formData.redirect" />
+                <el-form-item label="重定向"  prop="redirect">
+                    <el-input v-model="addDialogFormData.redirect" />
                 </el-form-item>
-                <el-form-item label="标题" prop="meta.title">
-                    <el-input v-model="addDialog.formData.meta.title" />
+                <el-form-item label="标题"  prop="meta.title">
+                    <el-input v-model="addDialogFormData.meta.title" />
                 </el-form-item>
-                <el-form-item label="图标" prop="meta.icon">
-                    <el-input v-model="addDialog.formData.meta.icon" />
+                <el-form-item label="图标"  prop="meta.icon">
+                    <el-input v-model="addDialogFormData.meta.icon" />
                 </el-form-item>
-                <el-form-item label="组件" prop="component">
-                    <el-input v-model="addDialog.formData.component" />
+                <el-form-item label="组件"  prop="component">
+                    <el-input v-model="addDialogFormData.component" />
                 </el-form-item>
 
             </el-form>
 
             <span slot="footer" class="dialog-footer">
                 <el-button type="primary" @click="addDialogSubmitForm(addMenuFormRef)">提交</el-button>
-                <el-button type="primary" @click="addDialog.visible = false">关闭</el-button>
+                <el-button type="primary" @click="addDialogFormDataVisible = false">关闭</el-button>
             </span>
         </el-dialog>
 
@@ -93,35 +93,58 @@ const page = reactive({
     total_number: 0
 })
 
-const addMenuFormRef = ref<FormInstance>()
-
 const search = reactive({
     status: "",
 })
 
-//新增对话框数据
-const addDialog =  reactive({
-    formData:{
-        path: "",
-        name: "",
-        redirect: "",
-        meta: {
-            title: "",
-            onlySubmenu: true,
-            icon: ""
-        },
-        component: "",
-        children: []
+
+// 新增对话框数据结构
+interface addDialogFormDataStruct {
+    path: string
+    name: string
+    redirect: string
+    meta: {
+        title: string
+        onlySubmenu: boolean
+        icon: string
+    }
+    children: any
+    component: string
+}
+
+const addMenuFormRef = ref<FormInstance>()
+
+// 对话框验证规则
+const addDialogFormDataRules = reactive<FormRules<addDialogFormDataStruct>>({
+    path: [
+        { required: true, message: '请输入', trigger: 'blur' },
+        { min: 3, max: 32, message: '长度为3-32', trigger: 'blur' }
+    ],
+    name: [
+        { required: true, message: '请输入', trigger: 'blur' },
+        { min: 3, max: 32, message: '长度为3-32', trigger: 'blur' }
+    ],
+    redirect: [{ required: true, message: '请输入', trigger: 'blur' }],
+    component: [{ required: true, message: '请输入', trigger: 'blur' }],
+    'meta.title': [{ required: true, message: '请输入', trigger: 'blur' }],
+    'meta.icon': [{ required: true, message: '请输入', trigger: 'blur' }],
+})
+
+// 对话框显示控制
+const addDialogFormDataVisible = ref(false)
+
+// 新增对话框数据
+let addDialogFormData =  reactive<addDialogFormDataStruct>({
+    path: "",
+    name: "",
+    redirect: "",
+    meta: {
+        title: "",
+        onlySubmenu: true,
+        icon: ""
     },
-    visible: false,
-    rules: reactive({
-        path: [{ required: true, message: '请输入', trigger: 'blur' },],
-        name: [{ required: true, message: '请输入', trigger: 'blur' },],
-        redirect: [{ required: true, message: '请输入', trigger: 'blur' }],
-        'meta.title': [{ required: true, message: '请输入', trigger: 'blur' }],
-        'meta.icon': [{ required: true, message: '请输入', trigger: 'blur' }],
-        component: [{ required: true, message: '请输入', trigger: 'blur' }],
-    })
+    component: "",
+    children: [],
 })
 
 const handleSizeChange = async (val: any) => {
@@ -169,7 +192,7 @@ const getLists = async () => {
 }
 
 const add = async () => {
-    addDialog.visible = true
+    addDialogFormDataVisible.value = true
 }
 
 const addDialogSubmitForm = async (formEl: FormInstance | undefined) => {
@@ -177,11 +200,11 @@ const addDialogSubmitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
             console.log('submit!')
-            addMenu(addDialog.formData).then(async (res: any) => {
-                console.log(res)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+            // addMenu(addDialogFormData).then(async (res: any) => {
+            //     console.log(res)
+            // }).catch((err: any) => {
+            //     console.log(err)
+            // })
         } else {
             console.log('error submit!', fields)
         }

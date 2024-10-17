@@ -52,12 +52,12 @@ export async function getDynamicRoutes(){
     //获取用户信息
     await adminInfo().then(async res => {
         var userInfo: UserInfo = {
-            username: res.username,
-            nickname: res.name,
-            avatar: res.avatar,
-            introduction: res.introduction,
-            menu: res.menu,
-            roles: res.roles
+            username: res.data.username,
+            nickname: res.data.name,
+            avatar: res.data.avatar,
+            introduction: res.data.introduction,
+            menu: res.data.menu,
+            roles: res.data.roles
         }
 
         // useInfo.saveUserInfo(userInfo); // 保存用户信息

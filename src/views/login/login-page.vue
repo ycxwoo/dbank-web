@@ -104,7 +104,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         .then(async (res) => {
           console.log(res)
 
-          SetToken(res.token)
+          SetToken(res.data.token)
 
           //获取动态路由
           var dr: RouteRecordRaw[] = await getDynamicRoutes()
@@ -127,8 +127,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
 const get_auth_code = async () => {
   const res = await get_captcha()
-  loginForm.captcha = res.img
-  loginForm.id = res.id
+  loginForm.captcha = res.data.img
+  loginForm.id = res.data.id
 }
 
 onBeforeMount(() => {
