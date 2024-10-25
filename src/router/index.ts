@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteRecordNormalized, type RouteRecordRaw } from 'vue-router'
-import { adminInfo } from '@/api/admin';
+import { getInfo as adminInfo } from '@/api/admin';
 import { useInfoStore, type UserInfo, SetUserInfo, GetUserInfo } from '@/stores/user-info';
 import { GetToken } from '@/stores/token'
 
@@ -38,7 +38,7 @@ async function setDynamicRoutes(dynamicRoutes:any[], menuList:any[]){
 export async function getDynamicRoutes(){
   //动态路由表
   var dynamicRoutes: RouteRecordRaw[] = []
-
+  const token = GetToken()
   //实例化用户存储
   // var useInfo = useInfoStore()
   //获取用户菜单
@@ -48,7 +48,7 @@ export async function getDynamicRoutes(){
   if (userInfo) {
     //设置动态路由到路由表
     await setDynamicRoutes(dynamicRoutes, userInfo.menu)
-  }else{
+  }else if(token){
     //获取用户信息
     await adminInfo().then(async res => {
         var userInfo: UserInfo = {

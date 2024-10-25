@@ -20,7 +20,8 @@
           v-model="loginForm.password"
           placeholder="密码"
           prefix-icon="Lock"
-          suffix-icon="Hide"
+          type="password"
+          show-password
         />
       </el-form-item>
 
@@ -36,7 +37,7 @@
             style="width: 128px; cursor: pointer"
             :src="loginForm.captcha"
             @click="get_auth_code"
-            alt="验证码错误，请点击刷新"
+            alt="点击刷新"
           />
         </el-container>
       </el-form-item>
@@ -100,10 +101,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         password: loginForm.password,
         code: loginForm.code,
         id: loginForm.id
-      })
-        .then(async (res) => {
-          console.log(res)
-
+      }).then(async (res) => {
+          // console.log(res)
           SetToken(res.data.token)
 
           //获取动态路由
@@ -118,6 +117,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         })
         .catch((err) => {
           console.log(err)
+          get_auth_code()
         })
     } else {
       console.log('error submit!', fields)

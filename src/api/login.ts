@@ -15,3 +15,11 @@ export function login(data = {}) {
     data
   })
 }
+
+export function logout(data = {}) {
+  return request({
+    url: '/admin/user/logout',
+    method: 'post',
+    data
+  })
+}

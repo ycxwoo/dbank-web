@@ -1,16 +1,19 @@
 <template>
     <div class="menu-container">
 
-        <el-dialog title="添加主菜单" v-model="addDialog.visible" :close-on-click-modal="false" width="35%" draggable >
-            <el-form ref="addMenuFormRef" :model="addDialog.formData" :rules="addDialog.rules" label-width="auto" label-position="right" style="max-width: 400px" class="centered-form">
+        <el-dialog :title="addDialog.title" v-model="addDialog.visible" :close-on-click-modal="false" width="35%" draggable >
+            <el-form ref="addMenuFormRef" :model="addDialog.formData" :rules="addDialog.rules" label-width="100px" label-position="left" class="centered-form">
+                <el-form-item label="仅显示子菜单">
+                    <el-switch v-model="addDialog.formData.meta.onlySubmenu" />
+                </el-form-item>
+                <el-form-item label="隐藏">
+                    <el-switch v-model="addDialog.formData.hidden" />
+                </el-form-item>
                 <el-form-item label="路径" prop="path">
                     <el-input v-model="addDialog.formData.path" />
                 </el-form-item>
                 <el-form-item label="名称" prop="name">
                     <el-input v-model="addDialog.formData.name" />
-                </el-form-item>
-                <el-form-item label="重定向" prop="redirect">
-                    <el-input v-model="addDialog.formData.redirect" />
                 </el-form-item>
                 <el-form-item label="标题" prop="meta.title">
                     <el-input v-model="addDialog.formData.meta.title" />
@@ -20,6 +23,9 @@
                 </el-form-item>
                 <el-form-item label="组件" prop="component">
                     <el-input v-model="addDialog.formData.component" />
+                </el-form-item>
+                <el-form-item label="重定向" prop="redirect">
+                    <el-input v-model="addDialog.formData.redirect" />
                 </el-form-item>
 
             </el-form>
@@ -31,28 +37,30 @@
         </el-dialog>
 
         <el-form :inline="true" :model="search" style="float: right;">
-            <el-form-item label="状态" >
+            <!-- <el-form-item label="状态" >
                 <el-select v-model="search.status" placeholder="请选择" style="width: 120px" :empty-values="[null, undefined]">
                     <el-option label="全部" value="" />
                 </el-select>
-            </el-form-item>
+            </el-form-item> -->
 
             <el-form-item>
-                <el-button type="primary" :icon="Search" @click="refresh()">搜索</el-button>
+                <el-button type="primary" :icon="Refresh" @click="refresh()">刷新</el-button>
                 <el-button type="primary" @click="add()">添加</el-button>
             </el-form-item>
         </el-form>
 
         <el-table  v-loading="tableLoading" :data="tableData" row-key="id" stripe style="width: 100%; margin-top: 10px; margin-bottom: 10px;" >
-            <el-table-column align="center" prop="id" label="ID" />
+            <el-table-column align="center" prop="id" label="ID" width="250px"/>
             <el-table-column align="center" prop="meta.title" label="菜单" />
+            <el-table-column align="center" prop="hidden" label="是否隐藏" width="100px" />
+            <!-- <el-table-column align="center" prop="meta.onlySubmenu" label="仅显示子菜单" width="120px" /> -->
             <el-table-column align="center" prop="path" label="路径" />
-            <el-table-column align="center" prop="component" label="组件" />
-
+            <!-- <el-table-column align="center" prop="component" label="组件" /> -->
             <el-table-column align="center" fixed="right" label="操作">
                 <template v-slot="{row}">
-                    <!-- <el-button v-if="row.status == 0" type="text" size="small" >审核</el-button> -->
-                    <el-button type="primary" link size="small" >编辑</el-button>
+                    <el-button type="primary" link size="small" @click="edit(row)">编辑</el-button>
+                    <el-button v-if="row.id" type="primary" link size="small" @click="addLevel(row)">添加</el-button>
+                    <el-button type="primary" link size="small" @click="del(row)">删除</el-button>
                 </template>
             </el-table-column>
         </el-table>
@@ -74,13 +82,16 @@
   
 <script lang="ts" setup>
 import { reactive, ref, onBeforeMount } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
-import { getList,addMenu } from '@/api/menu'
+import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+import { useRouter, useRoute } from "vue-router";
+import { Refresh } from '@element-plus/icons-vue'
+import { getList, addMenu, editMenu, delMenu } from '@/api/menu'
 
 defineOptions({
     name: "Menu"
 })
+
+const router = useRouter();
 
 let tableData = reactive([]);
 const tableLoading = ref(false);
@@ -102,26 +113,30 @@ const search = reactive({
 //新增对话框数据
 const addDialog =  reactive({
     formData:{
+        id: "",
         path: "",
         name: "",
         redirect: "",
         meta: {
             title: "",
-            onlySubmenu: true,
+            onlySubmenu: false,
             icon: ""
         },
-        component: "",
-        children: []
+        component: "/views/layout/index",
+        children: [],
+        hidden: false,
+        editPath: "",
     },
+    title: "添加主菜单",
     visible: false,
-    rules: reactive({
+    rules: {
         path: [{ required: true, message: '请输入', trigger: 'blur' },],
         name: [{ required: true, message: '请输入', trigger: 'blur' },],
-        redirect: [{ required: true, message: '请输入', trigger: 'blur' }],
+        // redirect: [{ required: true, message: '请输入', trigger: 'blur' }],
         'meta.title': [{ required: true, message: '请输入', trigger: 'blur' }],
         'meta.icon': [{ required: true, message: '请输入', trigger: 'blur' }],
         component: [{ required: true, message: '请输入', trigger: 'blur' }],
-    })
+    }
 })
 
 const handleSizeChange = async (val: any) => {
@@ -170,6 +185,65 @@ const getLists = async () => {
 
 const add = async () => {
     addDialog.visible = true
+    addDialog.title= "添加主菜单"
+    addDialog.formData = {
+        id: "",
+        path: "",
+        name: "",
+        redirect: "",
+        meta: {
+            title: "",
+            onlySubmenu: false,
+            icon: ""
+        },
+        hidden: false,
+        component: "/views/layout/index",
+        children: [],
+        editPath: "",
+    }
+}
+
+const addLevel = async (row: any) => {
+    addDialog.visible = true
+    addDialog.title= "添加子菜单"
+    addDialog.formData = {
+        id: row.id,
+        path: "",
+        name: "",
+        redirect: "",
+        meta: {
+            title: "",
+            onlySubmenu: false,
+            icon: ""
+        },
+        hidden: false,
+        component: "",
+        children: [],
+        editPath: "",
+    }
+}
+
+const edit = async (row: any) => {
+    // router.push({path: '/system/menu/edit',query:{id:id}});   //使用route.query.id获取
+    addDialog.title = "编辑菜单"
+    addDialog.visible = true
+    addDialog.formData = row
+    addDialog.formData.editPath = row.path
+}
+
+const del = async (row: any) => {
+    ElMessageBox.confirm( '确认删除该条数据( ' + row.meta.title + ' ) ?', '警告',
+        { cancelButtonText: '取消', confirmButtonText: '确认', type: 'warning',}
+    ).then(() => {
+        delMenu({"id":row.id, "path":row.path}).then(async (res: any) => {
+            ElMessage({ type: 'success', message: '已删除',})
+            getLists()
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }).catch(() => {
+        ElMessage({ type: 'info', message: '已取消',})
+    })
 }
 
 const addDialogSubmitForm = async (formEl: FormInstance | undefined) => {
@@ -177,11 +251,23 @@ const addDialogSubmitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid, fields) => {
         if (valid) {
             console.log('submit!')
-            addMenu(addDialog.formData).then(async (res: any) => {
-                console.log(res)
-            }).catch((err: any) => {
-                console.log(err)
-            })
+            if(addDialog.formData.editPath != ""){
+                editMenu(addDialog.formData).then(async (res: any) => {
+                    console.log(res)
+                    addDialog.visible = false
+                    getLists()
+                }).catch((err: any) => {
+                    console.log(err)
+                })
+            }else{
+                addMenu(addDialog.formData).then(async (res: any) => {
+                    console.log(res)
+                    addDialog.visible = false
+                    getLists()
+                }).catch((err: any) => {
+                    console.log(err)
+                })
+            }
         } else {
             console.log('error submit!', fields)
         }

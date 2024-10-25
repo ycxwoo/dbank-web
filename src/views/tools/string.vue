@@ -2,7 +2,7 @@
     <div class="menu-container">
 
         <el-dialog title="添加主菜单" v-model="addDialogFormDataVisible" :close-on-click-modal="false" width="35%" draggable >
-            <el-form ref="addMenuFormRef" :model="addDialogFormData" :rules="addDialogFormDataRules" label-width="auto" autocomplete="on" label-position="right" style="max-width: 400px" class="centered-form">
+            <el-form ref="addMenuFormRef" :model="addDialogFormData" :rules="addDialogFormDataRules" autocomplete="on" label-position="right" style="max-width: 400px" class="centered-form">
                 <el-form-item label="路径"  prop="path">
                     <el-input v-model="addDialogFormData.path" />
                 </el-form-item>

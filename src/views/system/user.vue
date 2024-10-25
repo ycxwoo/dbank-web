@@ -1,7 +1,12 @@
 <template>
-    <div class="role-container">
+    <div class="user-container">
 
-        <el-form :inline="true" :model="search" style="float: right;" >
+        <el-form :inline="true" :model="search" style="float: right;">
+            <!-- <el-form-item label="状态" >
+                <el-select v-model="search.status" placeholder="请选择" style="width: 120px" :empty-values="[null, undefined]">
+                    <el-option label="全部" value="" />
+                </el-select>
+            </el-form-item> -->
 
             <el-form-item>
                 <el-button type="primary" :icon="Refresh" @click="refresh()">刷新</el-button>
@@ -10,10 +15,15 @@
         </el-form>
 
         <el-table  v-loading="tableLoading" :data="tableData" stripe style="width: 100%; margin-top: 10px; margin-bottom: 10px;" >
-            <el-table-column align="center" prop="id" label="ID" width="250px" />
-            <el-table-column align="center" prop="name" label="角色" />
-            <el-table-column align="center" prop="level" label="等级" />
-            <!-- <el-table-column align="center" prop="menu" label="菜单" /> -->
+            <!-- <el-table-column align="center" prop="id" label="ID" width="250px" /> -->
+            <el-table-column align="center" prop="username" label="账号" />
+            <el-table-column align="center" prop="name" label="昵称" />
+            <el-table-column align="center" prop="roles" label="角色" />
+            <el-table-column align="center" prop="login_time" label="登录时间" >
+                <template v-slot="{row}">
+                    {{ timestamp_to_str(row.login_time) }}
+                </template>
+            </el-table-column>
 
             <el-table-column align="center" fixed="right" label="操作">
                 <template v-slot="{row}">
@@ -44,10 +54,11 @@ import { Refresh } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
-import { getList, delRole } from '@/api/role'
+import { getList, delUser } from '@/api/admin'
+import { timestamp_to_str } from '@/utils/tools'
 
 defineOptions({
-    name: "Role"
+    name: "User"
 })
 
 const router = useRouter();
@@ -112,18 +123,18 @@ const getLists = async () => {
 }
 
 const add = async () => {
-    router.push({path: '/system/role/edit'});   //使用route.query.id获取
+    router.push({path: '/system/user/edit'});   //使用route.query.id获取
 }
 
 const edit = async (id: string) => {
-    router.push({path: '/system/role/edit',query:{id:id}});   //使用route.query.id获取
+    router.push({path: '/system/user/edit',query:{id:id}});   //使用route.query.id获取
 }
 
 const del = async (id: string, name: string) => {
     ElMessageBox.confirm( '确认删除该条数据( ' + name + ' ) ?', '警告',
         { cancelButtonText: '取消', confirmButtonText: '确认', type: 'warning',}
     ).then(() => {
-        delRole({"id":id,"name": name}).then(async (res: any) => {
+        delUser({"id":id}).then(async (res: any) => {
             ElMessage({ type: 'success', message: '已删除',})
             getLists()
         }).catch((err: any) => {
@@ -141,7 +152,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.role-container {
+.user-container {
 }
 
 </style>
