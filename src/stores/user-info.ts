@@ -1,19 +1,19 @@
 
 import { defineStore } from 'pinia'
-import { CookiesManager } from '@/utils/cookie'
+import { SessionStorage } from '@/utils/session-storage'
 
 const UserInfoKey = 'User-Info'
 
 export function SetUserInfo(userInfo: any) {
-  return CookiesManager.setObj(UserInfoKey, userInfo)
+  return SessionStorage.setObj(UserInfoKey, userInfo)
 }
 
 export function GetUserInfo() {
-  return CookiesManager.getObj(UserInfoKey)
+  return SessionStorage.getObj(UserInfoKey)
 }
 
 export function RemoveUserInfo() {
-  return CookiesManager.remove(UserInfoKey)
+  return SessionStorage.remove(UserInfoKey)
 }
 
 // 定义用户信息的类型

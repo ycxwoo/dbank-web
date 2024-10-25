@@ -1,5 +1,6 @@
+import { ElMessage } from "element-plus";
 
-export function timestamp_to_str(timestamp: number){
+export function timestampToStr(timestamp: number){
     if(timestamp == null || timestamp == undefined || timestamp == 0){
         return '';
     }
@@ -17,7 +18,13 @@ export function timestamp_to_str(timestamp: number){
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-export function el_time_to_timestamp(el_time: string, type=0){
+export function strToTimestamp(str: string){
+    const date = new Date(str);
+    const timestamp = date.getTime();
+    return timestamp;
+}
+
+export function elTimeToTimestamp(el_time: string, type=0){
     const date = new Date(el_time);
     var timestamp = date.getTime();
     //转换为秒级时间戳
@@ -27,7 +34,7 @@ export function el_time_to_timestamp(el_time: string, type=0){
     return timestamp;
 }
 
-export function timestamp_to_el_time(timestamp: number){
+export function timestampToElTime(timestamp: number){
     //判断时间戳长度，如果是秒级时间戳，转换为毫秒级
     if(timestamp.toString().length == 10){
         timestamp = timestamp * 1000;
@@ -38,7 +45,7 @@ export function timestamp_to_el_time(timestamp: number){
 }
 
 //el time to str time
-export function el_time_to_str(el_time: string, type=6){
+export function elTimeToStr(el_time: string, type=6){
     const date = new Date(el_time);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -66,7 +73,7 @@ export function el_time_to_str(el_time: string, type=6){
     return str;
 }
 
-export function iso_8601_time_to_str(t: string){
+export function iso8601TimeToStr(t: string){
     var date = new Date(t);
 
     var year = date.getFullYear();
@@ -77,4 +84,20 @@ export function iso_8601_time_to_str(t: string){
     var seconds = date.getSeconds().toString().padStart(2, "0");
 
     return  year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+}
+
+export function copyText (text: any) {
+    if (!text) {
+        return;
+    }
+    navigator.clipboard.writeText(text).then(() => {
+        ElMessage({ type: 'success', message: '复制成功',})
+    }).catch(err => {
+        ElMessage({ type: 'error', message: '复制失败',})
+    });
+}
+
+//当前时间戳(秒级)
+export function GetCurrentTimestamp(){
+    return Math.round(Date.now()/1000);
 }

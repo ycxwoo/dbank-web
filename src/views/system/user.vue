@@ -21,7 +21,7 @@
             <el-table-column align="center" prop="roles" label="角色" />
             <el-table-column align="center" prop="login_time" label="登录时间" >
                 <template v-slot="{row}">
-                    {{ timestamp_to_str(row.login_time) }}
+                    {{ timestampToStr(row.login_time) }}
                 </template>
             </el-table-column>
 
@@ -55,7 +55,7 @@ import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 
 import { getList, delUser } from '@/api/admin'
-import { timestamp_to_str } from '@/utils/tools'
+import { timestampToStr } from '@/utils/tools'
 
 defineOptions({
     name: "User"
